@@ -9,17 +9,19 @@ A comprehensive Yomitan dictionary built from the authoritative [Folkets Lexikon
 1. Navigate to [**Actions**](../../actions/workflows/build-dictionary.yml)
 2. Click **"Run workflow"** → **"Run workflow"** (green button)
 3. Wait 2-3 minutes for build completion
-4. Download the generated `folkets-lexikon-yomitan-v*.zip` file from Artifacts
+4. Download the generated artifact ZIP file
+5. **Extract** the artifact to get the actual dictionary file: `folkets-lexikon-yomitan-v*.zip`
 
 ## 📱 Installation in Yomitan
 
-1. **Download** the dictionary ZIP file
-2. **Open** Yomitan extension settings (click the extension icon → settings gear)
-3. **Navigate** to **"Dictionaries"** in the left sidebar
-4. **Click** **"Import"** button
-5. **Select** the downloaded ZIP file
-6. **Enable** the dictionary by toggling it on
-7. **Enjoy** instant Swedish translations!
+1. **Download** the dictionary ZIP file from Actions
+2. **Extract** the downloaded artifact to get the actual dictionary file
+3. **Open** Yomitan extension settings (click the extension icon → settings gear)
+4. **Navigate** to **"Dictionaries"** in the left sidebar
+5. **Click** **"Import"** button
+6. **Select** the **extracted** dictionary ZIP file (not the artifact ZIP)
+7. **Enable** the dictionary by toggling it on
+8. **Enjoy** instant Swedish translations!
 
 ## ✨ Features
 
@@ -70,6 +72,15 @@ We welcome contributions! Whether it's:
 - 🔧 Code contributions
 
 Please check our [Issues](../../issues) or create a new one.
+
+## 🤖 Development Note
+
+This project was collaboratively developed through human-AI cooperation with **Claude (Anthropic)**:
+- **Human guidance**: Requirements definition, feedback, quality control, and project direction by [@zhangdoa](https://github.com/zhangdoa)
+- **AI implementation**: Code development, documentation writing, and technical solutions by Claude Sonnet 4
+- **Iterative refinement**: Continuous feedback loop between human and AI to achieve the final result
+
+This represents a practical example of human-AI collaboration in software development, where Claude serves as a coding partner while the human provides vision, judgment, and oversight. The entire codebase was generated through conversational programming with Claude.
 
 ## 📄 License
 
