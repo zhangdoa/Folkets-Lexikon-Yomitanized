@@ -1,0 +1,13 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Python: Launch __main__.py in Subfolder",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${fileDirname}/__main__.py",
+            "console": "integratedTerminal",
+            "cwd": "${fileDirname}"
+        }
+    ]
+}

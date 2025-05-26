@@ -1,0 +1,61 @@
+name: Build Folkets Lexikon Yomitan Dictionary
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build-dictionary:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+        
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+        
+    - name: Download Folkets Lexikon XML
+      run: |
+        echo "📥 Downloading Folkets Lexikon..."
+        curl -L "https://folkets-lexikon.csc.kth.se/folkets/folkets_sv_en_public.xml" \
+             -o "folkets_sv_en_public.xml"
+        echo "✅ Downloaded $(du -h folkets_sv_en_public.xml | cut -f1)"
+        
+    - name: Build dictionary
+      run: |
+        echo "🔨 Building Yomitan dictionary..."
+        python __main__.py
+        
+    - name: Rename to versioned filename
+      run: |
+        DATE=$(date +%Y%m%d)
+        if [ -f "Folkets_Lexikon.zip" ]; then
+          mv "Folkets_Lexikon.zip" "folkets-lexikon-yomitan-v${DATE}.zip"
+          echo "✅ Renamed to folkets-lexikon-yomitan-v${DATE}.zip"
+          echo "📦 File size: $(du -h folkets-lexikon-yomitan-v${DATE}.zip | cut -f1)"
+        else
+          echo "❌ Folkets_Lexikon.zip not found"
+          ls -la
+        fi
+        
+    - name: Upload dictionary
+      uses: actions/upload-artifact@v4
+      with:
+        name: folkets-lexikon-yomitan-v${{ github.run_number }}
+        path: "folkets-lexikon-yomitan-v*.zip"
+        retention-days: 30
+        
+    - name: Build summary
+      run: |
+        DATE=$(date +%Y%m%d)
+        echo "## 📚 Folkets Lexikon Yomitan Dictionary" >> $GITHUB_STEP_SUMMARY
+        echo "**Version:** v$DATE" >> $GITHUB_STEP_SUMMARY
+        echo "**Build Date:** $(date)" >> $GITHUB_STEP_SUMMARY
+        echo "**Download:** folkets-lexikon-yomitan-v$DATE.zip" >> $GITHUB_STEP_SUMMARY
