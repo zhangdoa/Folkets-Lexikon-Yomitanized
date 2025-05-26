@@ -33,29 +33,36 @@ jobs:
         echo "🔨 Building Yomitan dictionary..."
         python __main__.py
         
-    - name: Rename to versioned filename
+    - name: Verify output and get info
       run: |
-        DATE=$(date +%Y%m%d)
-        if [ -f "Folkets_Lexikon.zip" ]; then
-          mv "Folkets_Lexikon.zip" "folkets-lexikon-yomitan-v${DATE}.zip"
-          echo "✅ Renamed to folkets-lexikon-yomitan-v${DATE}.zip"
-          echo "📦 File size: $(du -h folkets-lexikon-yomitan-v${DATE}.zip | cut -f1)"
-        else
-          echo "❌ Folkets_Lexikon.zip not found"
-          ls -la
-        fi
+        echo "📋 Build completed! Generated files:"
+        ls -lh *.zip
         
-    - name: Upload dictionary
+        # Get the actual filename for later use
+        DICT_FILE=$(ls folkets-lexikon-yomitan-v*.zip | head -1)
+        echo "DICT_FILENAME=$DICT_FILE" >> $GITHUB_ENV
+        echo "📦 Dictionary file: $DICT_FILE"
+        
+        # Show file size and brief info
+        echo "📊 File size: $(du -h "$DICT_FILE" | cut -f1)"
+        
+    - name: Upload dictionary (direct file)
       uses: actions/upload-artifact@v4
       with:
-        name: folkets-lexikon-yomitan-v${{ github.run_number }}
-        path: "folkets-lexikon-yomitan-v*.zip"
+        name: ${{ env.DICT_FILENAME }}
+        path: ${{ env.DICT_FILENAME }}
         retention-days: 30
         
     - name: Build summary
       run: |
-        DATE=$(date +%Y%m%d)
-        echo "## 📚 Folkets Lexikon Yomitan Dictionary" >> $GITHUB_STEP_SUMMARY
-        echo "**Version:** v$DATE" >> $GITHUB_STEP_SUMMARY
-        echo "**Build Date:** $(date)" >> $GITHUB_STEP_SUMMARY
-        echo "**Download:** folkets-lexikon-yomitan-v$DATE.zip" >> $GITHUB_STEP_SUMMARY
+        echo "## 📚 Folkets Lexikon Yomitan Dictionary Built Successfully!" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "**📦 Download:** \`${{ env.DICT_FILENAME }}\`" >> $GITHUB_STEP_SUMMARY
+        echo "**📅 Build Date:** $(date)" >> $GITHUB_STEP_SUMMARY
+        echo "**📊 File Size:** $(du -h ${{ env.DICT_FILENAME }} | cut -f1)" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "### 📥 How to Install" >> $GITHUB_STEP_SUMMARY
+        echo "1. Download the artifact above" >> $GITHUB_STEP_SUMMARY
+        echo "2. Open Yomitan settings → Dictionaries" >> $GITHUB_STEP_SUMMARY
+        echo "3. Click Import and select the downloaded file" >> $GITHUB_STEP_SUMMARY
+        echo "4. Enable the dictionary and enjoy! 🎉" >> $GITHUB_STEP_SUMMARY
