@@ -47,8 +47,9 @@ jobs:
           mv "Folkets_Lexikon.zip" "$FINAL_NAME"
           echo "✅ Renamed Folkets_Lexikon.zip → $FINAL_NAME"
           
-          # Set environment variable for upload
+          # Set environment variables for upload
           echo "DICT_FILENAME=$FINAL_NAME" >> $GITHUB_ENV
+          echo "ARTIFACT_NAME=folkets-lexikon-yomitan-v${DATE}" >> $GITHUB_ENV
           echo "📦 Final dictionary file: $FINAL_NAME"
           echo "📊 File size: $(du -h "$FINAL_NAME" | cut -f1)"
         else
@@ -61,7 +62,7 @@ jobs:
     - name: Upload dictionary (direct file)
       uses: actions/upload-artifact@v4
       with:
-        name: ${{ env.DICT_FILENAME }}
+        name: ${{ env.ARTIFACT_NAME }}
         path: ${{ env.DICT_FILENAME }}
         retention-days: 30
         
@@ -69,12 +70,14 @@ jobs:
       run: |
         echo "## 📚 Folkets Lexikon Yomitan Dictionary Built Successfully!" >> $GITHUB_STEP_SUMMARY
         echo "" >> $GITHUB_STEP_SUMMARY
-        echo "**📦 Download:** \`${{ env.DICT_FILENAME }}\`" >> $GITHUB_STEP_SUMMARY
+        echo "**📦 Artifact Name:** \`${{ env.ARTIFACT_NAME }}\`" >> $GITHUB_STEP_SUMMARY
+        echo "**📄 Dictionary File:** \`${{ env.DICT_FILENAME }}\`" >> $GITHUB_STEP_SUMMARY
         echo "**📅 Build Date:** $(date)" >> $GITHUB_STEP_SUMMARY
         echo "**📊 File Size:** $(du -h ${{ env.DICT_FILENAME }} | cut -f1)" >> $GITHUB_STEP_SUMMARY
         echo "" >> $GITHUB_STEP_SUMMARY
         echo "### 📥 How to Install" >> $GITHUB_STEP_SUMMARY
-        echo "1. Download the artifact above" >> $GITHUB_STEP_SUMMARY
-        echo "2. Open Yomitan settings → Dictionaries" >> $GITHUB_STEP_SUMMARY
-        echo "3. Click Import and select the downloaded file" >> $GITHUB_STEP_SUMMARY
-        echo "4. Enable the dictionary and enjoy! 🎉" >> $GITHUB_STEP_SUMMARY
+        echo "1. Download the artifact above (it will be a zip file)" >> $GITHUB_STEP_SUMMARY
+        echo "2. **Extract** the artifact zip to get the dictionary file" >> $GITHUB_STEP_SUMMARY
+        echo "3. Open Yomitan settings → Dictionaries" >> $GITHUB_STEP_SUMMARY
+        echo "4. Click Import and select the **extracted** dictionary file" >> $GITHUB_STEP_SUMMARY
+        echo "5. Enable the dictionary and enjoy! 🎉" >> $GITHUB_STEP_SUMMARY
