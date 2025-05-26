@@ -33,38 +33,26 @@ jobs:
         echo "🔨 Building Yomitan dictionary..."
         python __main__.py
         
-    - name: Verify output and rename if needed
+    - name: Rename output file to dated version
       run: |
         echo "📋 Build completed! Checking generated files:"
         ls -la
         
-        # Check what zip files were generated
-        if ls *.zip 1> /dev/null 2>&1; then
-          echo "Found ZIP files:"
-          ls -lh *.zip
-          
-          # Get the first zip file (should be the dictionary)
-          GENERATED_FILE=$(ls *.zip | head -1)
-          echo "Generated file: $GENERATED_FILE"
-          
-          # Create a standardized filename with today's date
+        if [ -f "Folkets_Lexikon.zip" ]; then
+          # Create dated filename
           DATE=$(date +%Y%m%d)
           FINAL_NAME="folkets-lexikon-yomitan-v${DATE}.zip"
           
-          # Rename if necessary
-          if [ "$GENERATED_FILE" != "$FINAL_NAME" ]; then
-            mv "$GENERATED_FILE" "$FINAL_NAME"
-            echo "✅ Renamed $GENERATED_FILE → $FINAL_NAME"
-          else
-            echo "✅ Filename already correct: $FINAL_NAME"
-          fi
+          # Rename the file
+          mv "Folkets_Lexikon.zip" "$FINAL_NAME"
+          echo "✅ Renamed Folkets_Lexikon.zip → $FINAL_NAME"
           
           # Set environment variable for upload
           echo "DICT_FILENAME=$FINAL_NAME" >> $GITHUB_ENV
           echo "📦 Final dictionary file: $FINAL_NAME"
           echo "📊 File size: $(du -h "$FINAL_NAME" | cut -f1)"
         else
-          echo "❌ No ZIP files found!"
+          echo "❌ Folkets_Lexikon.zip not found!"
           echo "Generated files:"
           ls -la
           exit 1
