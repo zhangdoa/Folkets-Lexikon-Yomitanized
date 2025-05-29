@@ -4,6 +4,7 @@ XML parser for Folkets Lexikon data
 """
 
 import xml.etree.ElementTree as ET
+import html
 from typing import List, Optional
 from models import FolketsEntry, Example, Idiom, Definition, Synonym, Variant, SeeAlso
 
@@ -90,7 +91,7 @@ class FolketsXMLParser:
                 entry.definitions.append(definition)
                 
             elif child.tag == 'use':
-                entry.usage = child.get('value', '')
+                entry.usage = html.unescape(child.get('value', ''))
                 
             elif child.tag == 'synonym':
                 synonym = Synonym(

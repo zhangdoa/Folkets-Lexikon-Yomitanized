@@ -1,81 +1,98 @@
 #!/usr/bin/env python3
 """
-Part-of-speech mapper for Folkets Lexikon word classes
+POS mapper - handles word class to POS tag conversion
 """
 
-from typing import Set, Tuple
+from typing import Dict, Set
 from models import FolketsEntry
 
 
 class POSMapper:
-    """Maps Folkets Lexikon word classes to standard POS tags"""
+    """Maps word classes to standardized POS tags"""
     
     def __init__(self):
-        self.unknown_classes: Set[Tuple[str, str]] = set()
-        
-        # Map Folkets Lexikon classes to POS tags
-        self.class_to_pos = {
-            'rg': 'adj',        # regular (often adjectives)
-            'vb': 'verb',       # verb
-            'nn': 'noun',       # noun  
-            'jj': 'adj',        # adjective
-            'ab': 'adv',        # adverb
-            'av': 'adv',        # adverb
-            'pp': 'prep',       # preposition
-            'kn': 'conj',       # conjunction
-            'in': 'interj',     # interjection
-            'pn': 'pron',       # pronoun
-            'rn': 'num',        # numeral
-            'pl': 'part',       # particle
-            'abbrev': 'abbrev', # abbreviation
-            'article': 'art',   # article (den, en)
-            'hp': 'pron',       # interrogative pronoun (vilket, vad)
-            'ie': 'part',       # infinitive particle (att)
-            'pm': 'noun',       # proper noun/name (places, people, organizations)
-            'prefix': 'prefix', # prefix (anti-, bi-, etc.)
-            'ps': 'pron',       # possessive pronoun (någons)
-            'sn': 'conj',       # subordinating conjunction (utifall)
-            'suffix': 'suffix', # suffix (-procentig, -tonnare, etc.)
+        self.unknown_classes: Set[str] = set()
+        self.pos_mapping = {
+            # Full names
+            'noun': 'noun',
+            'verb': 'verb', 
+            'adjective': 'adj',
+            'adverb': 'adv',
+            'preposition': 'prep',
+            'pronoun': 'pron',
+            'conjunction': 'conj',
+            'interjection': 'interj',
+            'numeral': 'num',
+            'particle': 'part',
+            'article': 'art',
+            'prefix': 'prefix',
+            'suffix': 'suffix',
+            
+            # Common abbreviations
+            'nn': 'noun',        # noun
+            'vb': 'verb',        # verb
+            'jj': 'adj',         # adjective  
+            'ab': 'adv',         # adverb
+            'pp': 'prep',        # preposition
+            'pn': 'pron',        # pronoun
+            'kn': 'conj',        # conjunction
+            'in': 'interj',      # interjection
+            'sn': 'num',         # numeral
+            'pm': 'part',        # particle
+            'rg': 'num',         # cardinal number
+            'ps': 'pron',        # possessive pronoun
+            'ie': 'adv',         # adverb of location/time
+            'hp': 'pron',        # interrogative pronoun
+            
+            # Special cases
+            'abbrev': 'abbr',    # abbreviation
+            'misc': 'misc',      # miscellaneous
         }
     
     def detect_pos(self, entry: FolketsEntry) -> str:
-        """Detect part of speech from word class"""
-        word_class = entry.word_class
+        """Detect POS tag from entry"""
+        word_class = entry.word_class.lower().strip()
         
-        if word_class in self.class_to_pos:
-            return self.class_to_pos[word_class]
-        elif word_class:  # Non-empty class but not in our mapping
-            print(f"⚠️  Unknown word class '{word_class}' for word '{entry.headword}' - please add to mapping!")
-            self.unknown_classes.add((word_class, entry.headword))
-            
-        # Default to noun if no class or unknown class
-        return 'noun'
+        # Handle known mappings
+        if word_class in self.pos_mapping:
+            return self.pos_mapping[word_class]
+        
+        # Handle 'unknown' specially - keep it as-is
+        if word_class == 'unknown':
+            return 'unknown'
+        
+        # Log truly unknown classes and return misc
+        if word_class:  # Skip empty strings
+            self.unknown_classes.add(word_class)
+        
+        return 'misc'
     
-    def get_pos_descriptions(self) -> dict:
-        """Get descriptions for POS tags"""
+    def get_pos_descriptions(self) -> Dict[str, str]:
+        """Get POS tag descriptions"""
         return {
-            'noun': 'noun',
-            'verb': 'verb', 
-            'adj': 'adjective',
-            'adv': 'adverb',
-            'prep': 'preposition',
-            'conj': 'conjunction',
-            'interj': 'interjection',
-            'pron': 'pronoun',
-            'num': 'numeral',
-            'part': 'particle',
-            'abbrev': 'abbreviation',
-            'art': 'article',
-            'prefix': 'prefix',
-            'suffix': 'suffix'
+            'noun': 'Noun',
+            'verb': 'Verb',
+            'adj': 'Adjective', 
+            'adv': 'Adverb',
+            'prep': 'Preposition',
+            'pron': 'Pronoun',
+            'conj': 'Conjunction',
+            'interj': 'Interjection',
+            'num': 'Numeral',
+            'part': 'Particle',
+            'art': 'Article',
+            'prefix': 'Prefix',
+            'suffix': 'Suffix',
+            'abbr': 'Abbreviation',
+            'unknown': 'Unknown',
+            'misc': 'Other'
         }
     
-    def report_unknown_classes(self):
-        """Report any unknown word classes encountered"""
+    def report_unknown_classes(self) -> None:
+        """Report unknown word classes (excluding our 'unknown' placeholder)"""
         if self.unknown_classes:
-            print(f"\n⚠️  Found {len(self.unknown_classes)} unknown word classes:")
-            for class_name, example_word in sorted(self.unknown_classes):
-                print(f"   • '{class_name}' (example: {example_word})")
-            print("Please add these to the class_to_pos mapping in pos_mapper.py")
+            print(f"Found {len(self.unknown_classes)} unknown word classes:")
+            for cls in sorted(self.unknown_classes):
+                print(f"  - '{cls}'")
         else:
-            print("✅ All word classes recognized!")
+            print("All word classes were recognized or handled.")
